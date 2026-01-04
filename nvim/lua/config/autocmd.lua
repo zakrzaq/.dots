@@ -1,0 +1,110 @@
+-- VIRTUAL TEXT OFF
+vim.diagnostic.config({
+	float = {
+		source = true,
+		border = "rounded",
+		header = "",
+		prefix = "",
+		format = function(diagnostic)
+			return string.format("%s (%s)", diagnostic.message, diagnostic.source)
+		end,
+	},
+	virtual_text = false,
+	-- virtual_text = {
+	-- 	prefix = "●", -- Could be '●', '▎', 'x'
+	-- 	spacing = 4,
+	-- },
+	-- signs = true,
+})
+
+-- DIAGNOSTICS ICONS
+local diagnostic_signs = {
+	{ name = "DiagnosticSignError", text = "", texthl = "DiagnosticSignError" },
+	{ name = "DiagnosticSignWarn", text = "", texthl = "DiagnosticSignWarn" },
+	{ name = "DiagnosticSignInfo", text = "", texthl = "DiagnosticSignInfo" },
+	{ name = "DiagnosticSignHint", text = "", texthl = "DiagnosticSignHint" },
+}
+
+for _, sign in ipairs(diagnostic_signs) do
+	vim.fn.sign_define(sign.name, { texthl = sign.texthl, text = sign.text, numhl = "" })
+end
+
+-- SAVE FOLD ON FILE SAVE
+vim.opt.viewoptions:append("folds") -- Ensure folds are included in viewoptions
+local group = vim.api.nvim_create_augroup("AutoSaveFolds", { clear = true })
+
+vim.api.nvim_create_autocmd({ "BufWinLeave" }, { command = "mkview", pattern = ".*", group = group })
+vim.api.nvim_create_autocmd({ "BufWinEnter" }, { command = "loadview", pattern = ".*", group = group })
+
+-- SPELL CHECKER
+local spell_dir = vim.fn.stdpath("config") .. "/spell"
+if vim.fn.isdirectory(spell_dir) == 0 then
+	vim.fn.mkdir(spell_dir, "p")
+end
+
+-- COPILOT SYNTAX HIGHLIGHT
+vim.api.nvim_create_autocmd("ColorScheme", {
+	pattern = "everforest",
+	-- group = ...,
+	callback = function()
+		vim.api.nvim_set_hl(0, "CopilotSuggestion", {
+			fg = "#555555",
+			ctermfg = 8,
+			force = true,
+		})
+	end,
+})
+
+--- handle shebang for uv scripts ---
+vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
+	pattern = "*",
+	callback = function()
+		local first_line = vim.fn.getline(1)
+		if string.find(first_line, "uv run") then
+			-- if string.match(first_line, "^#!.*/uv run --script") then
+			vim.bo.filetype = "python"
+		end
+	end
+})
+
+-- tur off spellchecker for terminal windows --
+vim.api.nvim_create_autocmd("TermOpen", {
+	pattern = "*",
+	callback = function()
+		vim.opt_local.spell = false
+	end,
+})
+
+-- TYPR --
+-- filepath: ~/.config/nvim/lua/autocmds.lua
+vim.api.nvim_create_augroup('TyprIntegration', { clear = true })
+
+-- Assuming 'typr' is the filetype for your typing practice
+-- Replace 'typr' with the actual filetype if it's different
+
+-- On entering a 'typr' buffer
+vim.api.nvim_create_autocmd('BufEnter', {
+  group = 'TyprIntegration',
+  pattern = 'typr', -- Replace 'typr' with your actual filetype
+  callback = function()
+    -- Disable Copilot
+    vim.cmd('Copilot disable')
+    -- Set a global flag to tell cmp to disable itself
+    _G.disable_completion_for_typr = true
+  end,
+  desc = 'Disable Copilot and cmp for typr buffers',
+})
+
+-- On leaving a 'typr' buffer
+vim.api.nvim_create_autocmd('BufLeave', {
+  group = 'TyprIntegration',
+  pattern = 'typr', -- Replace 'typr' with your actual filetype
+  callback = function()
+    -- Re-enable Copilot
+    vim.cmd('Copilot enable')
+    -- Clear the global flag
+    _G.disable_completion_for_typr = nil
+  end,
+  desc = 'Enable Copilot and cmp after leaving typr buffers',
+})
+
