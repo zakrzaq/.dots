@@ -3,6 +3,12 @@ if test -f ~/.env
     source ~/.env
 end
 
+# PATHS
+
+if test -d ~/.local/bin
+    fish_add_path ~/.local/bin
+end
+
 # ALIASES
 if test -f ~/.dots/shell/aliases
     source ~/.dots/shell/aliases
