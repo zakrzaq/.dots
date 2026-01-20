@@ -1,0 +1,41 @@
+alias source-shell='source ~/.zshrc'
+alias rfish="source ~/.zshrc"
+alias fz="fzf --preview 'bat --color=always {}'"
+alias t='tmux has-session -t main 2>/dev/null && tmux attach-session -t main || tmux new-session -s main'
+alias dfh="df -h | grep home | awk '{print \$4}'"
+alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history | tail -n1 | sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+
+prime-run() { __NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia "$@"; }
+rmv-dirs() { find . -name "$1" -type d -prune -exec rm -rf '{}' +; }
+mkcd() { mkdir -p "$1" && cd "$1"; }
+src() { source "./$1/bin/activate"; }
+lc() { fc -l 1 | tac | fzf --tac | xargs -r -I {} /bin/zsh -c '{}'; }
+pps() { powerprofilesctl set "$1" && notify-send "Power profile set" -i display; }
+j() { if [ $# -eq 0 ]; then jobs; else fg "%$1"; fi; }
+edit-hosts() { sudo nvim /etc/hosts && sudo dscacheutil -flashcache; }
+cheat() { curl "cheat.sh/$1"; }
+
+# Git
+gsb() { git switch "$1"; }
+gcb() { git checkout -b "$1"; }
+gcm() { git commit -m "$1"; }
+gac() { git add .; git commit -m "$1"; }
+gct() { git add .; git commit -m "$1"; git push; }
+gbr() { git branch -D "$1"; }
+gmr() { git merge "$1"; }
+gpub() { git push --set-upstream origin $(git rev-parse --abbrev-ref HEAD); }
+gbr-local() { git branch | grep -v "$1" | xargs git branch -D; }
+grv() { git reset --"$1" HEAD~"$2"; }
+gsta() { git add .; git stash save "$1"; }
+gstp() { git stash pop "stash@{$1}"; }
+gstd() { git stash drop "stash@{$1}"; }
+
+# Docker
+dc-killall() { docker kill $(docker ps -q); }
+dc-clean() { docker rmi -f $(docker images -a -q); }
+dc-stop() { docker kill $(docker ps -qf expose="$1"); }
+dc-run() { docker run -it -p "$1:$1" "$2"; }
+dc-sh() { docker exec -it $(docker ps -qf expose="$1") sh; }
+
+ssh-port() { ssh -N -f -L "$1:localhost:$1" "$2"; }
+

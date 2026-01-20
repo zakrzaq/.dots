@@ -1,0 +1,44 @@
+alias source-shell='source ~/.config/fish/config.fish'
+alias rfish="source ~/.config/fish/config.fish"
+alias fz="fzf --preview 'bat --color=always {}'"
+alias t='tmux has-session -t main 2>/dev/null; and tmux attach-session -t main; or tmux new-session -s main'
+alias dfh="df -h | grep home | awk '{print \$4}'"
+alias alert='notify-send --urgency=low -i (test $status = 0; and echo terminal; or echo error) (history | head -n1)'
+
+function prime-run; set -x __NV_PRIME_RENDER_OFFLOAD 1; set -x __GL_VENDOR_LIBRARY_NAME nvidia; $argv; end
+function rmv-dirs; find . -name $argv[1] -type d -prune -exec rm -rf '{}' +; end
+function mkcd; mkdir -p $argv[1]; and cd $argv[1]; end
+function src; source "./$argv[1]/bin/activate"; end
+function lc; fc -l 1 | tac | fzf --tac | xargs -r -I {} /bin/fish -c '{}'; end
+function pps; powerprofilesctl set $argv[1]; and notify-send "Power profile set" -i display; end
+function j; if test (count $argv) -eq 0; jobs; else; eval "fg %$argv[1]"; end; end
+function edit-hosts; sudo nvim /etc/hosts; and sudo dscacheutil -flashcache; end
+function cheat; curl "cheat.sh/$argv[1]"; end
+
+# Git
+function gsb; git switch $argv[1]; end
+function gcb; git checkout -b $argv[1]; end
+function gcm; git commit -m $argv[1]; end
+function gac; git add .; and git commit -m $argv[1]; end
+function gct; git add .; and git commit -m $argv[1]; and git push; end
+function gbr; git branch -D $argv[1]; end
+function gmr; git merge $argv[1]; end
+function gpub; git push --set-upstream origin (git rev-parse --abbrev-ref HEAD); end
+function gbr-local; git branch | grep -v $argv[1] | xargs git branch -D; end
+function grv; git reset --$argv[1] HEAD~$argv[2]; end
+function gsta; git add .; and git stash save $argv[1]; end
+function gstp; git stash pop "stash@{$argv[1]}"; end
+function gstd; git stash drop "stash@{$argv[1]}"; end
+
+# Docker
+function dc-killall; docker kill (docker ps -q); end
+function dc-clean; docker rmi -f (docker images -a -q); end
+function dc-stop; docker kill (docker ps -qf expose=$argv[1]); end
+function dc-run; docker run -it -p $argv[1]:$argv[1] $argv[2]; end
+function dc-sh; docker exec -it (docker ps -qf expose=$argv[1]) sh; end
+
+function ssh-port; ssh -N -f -L $argv[1]:localhost:$argv[1] $argv[2]; end
+
+alias watch-fans 'watch -n 1 "i8kctl | awk \'{printf \"CPU Temp: %d°C | CPU Fan: %d | GPU Fan: %d | CPU RPM: %d\n\", \$4, \$6, \$7, \$8}\'"'
+alias watch-cpu-clocks 'watch -n 1 "for cpu in /sys/devices/system/cpu/cpu*/cpufreq/scaling_cur_freq; do echo -n \$(basename \$cpu) \" \"; awk \'{printf \"%.0f MHz\", \$1/1000}\' \$cpu; echo; done"'
+

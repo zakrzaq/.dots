@@ -1,0 +1,1 @@
+[ -f ~/.shell_aliases ] && source ~/.shell_aliases

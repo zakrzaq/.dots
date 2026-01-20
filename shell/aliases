@@ -1,0 +1,85 @@
+# ==========================================
+# UNIVERSAL ALIASES (Fish & Zsh compatible)
+# ==========================================
+
+# TMUX
+alias t='tmux has-session -t main 2>/dev/null && tmux attach-session -t main || tmux new-session -s main'
+alias ta='tmux attach'
+alias td='tmux detach'
+alias tk='tmux kill-server'
+
+# SYS TERM
+alias rmv='rm -rf'
+alias c='clear'
+alias x='exit'
+alias fz="fzf --preview 'bat --color=always {}'"
+alias bat='upower -i $(upower -e | grep BAT) | grep -E "(percentage|time to)"'
+
+# LS / EXA
+alias lt='ls -l --color=auto -F -h'
+alias lla='ls -la --color=auto -F -h'
+alias ll='ls -l --color=auto -F -h'
+alias la='ls -a --color=auto -F'
+alias l='ls --color=auto -F'
+alias et='exa --long --icons -T --git'
+alias ela='exa -a --long --icons --git'
+alias el='exa --long --icons --git'
+alias ea='exa -a --icons'
+alias e='exa --icons'
+
+# TOOLS
+alias dfh="df -h | grep home | awk '{print \$4}'"
+alias dff='duf -only local'
+alias ld='lazydocker'
+alias lg='lazygit'
+alias pm='pulsemixer'
+alias bt='bluetui'
+alias ppg='powerprofilesctl get'
+alias rs="redshift -l 50.2649:19.0238 -t 5700:3500"
+
+# NVIM
+alias nv='nvim'
+alias xv="env NVIM_APPNAME=nvim-min nvim"
+alias lv="env NVIM_APPNAME=nvim-light nvim"
+
+# DOCKER (Basic)
+alias dc-ls='docker ps'
+alias dc-ps='docker ps'
+alias dc-img='docker images -a'
+alias dc-up='docker compose up'
+alias dc-down='docker compose down'
+
+# GIT
+alias gini='git init && git branch -m main'
+alias gst='git status'
+alias gft='git fetch'
+alias gsm='git switch master'
+alias gsn='git switch main'
+alias gsd='git switch develop'
+alias gca='git checkout .'
+alias gaa='git add .'
+alias gph='git push'
+alias gpl='git pull'
+alias gbl='git branch'
+alias gstl='git stash list'
+alias glg='git log -r -n 10 --pretty=format:"%h - %an, %ar : %s"'
+alias glg-last-cmt='git log -n 1 --pretty=format:%H'
+alias glg-tree='git log --oneline --decorate --graph -n 20'
+alias gdf='git diff'
+
+# DEVELOPER
+alias fnd-comment-py="rg '^\s*#' --glob '*.py'"
+alias fnd-comment-js="rg '^\s*//|/\*|\*/' --glob '*.{js,ts}'"
+alias nvr='__NV_PRIME_RENDER_OFFLOAD=1 __GL_VENDOR_LIBRARY_NAME=nvidia'
+
+# ==========================================
+# SHELL SPECIFIC LOADING
+# ==========================================
+# We use a trick to source the specific functions 
+# so the main parser doesn't crash.
+
+# For ZSH:
+[ -n "$ZSH_VERSION" ] && source ~/.dots/shell/zsh_functions
+
+# For FISH:
+if set -q FISH_VERSION; source ~/.dots/shell/fish_functions; end
